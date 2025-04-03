@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Classroom Occupancy Tracker
 
 A web application to track the occupancy status of classrooms and labs in real-time.
@@ -54,3 +55,6 @@ node backend/server.js
 ## License
 
 MIT License 
+=======
+# manohar_repo
+>>>>>>> cb3f0afb5ecbd46eff1e250e099f2a0c56f01781
