@@ -784,6 +784,8 @@
     </div>
     
     <script>
+        const API_URL = 'http://localhost:3002';  // Updated port number
+        
         const floors = {
             "Floor 1": ["A11", "A12", "A13", "A14"],
             "Floor 2": ["B21", "B22", "B23", "B24"],
@@ -889,7 +891,7 @@
             }
 
             // Fetch room status from the backend
-            fetch('http://localhost:3001/api/room-status')
+            fetch(`${API_URL}/api/room-status`)
                 .then(response => response.json())
                 .then(data => {
                     roomStatus = data;
@@ -921,7 +923,7 @@
             console.log(`Toggling status for room ${room}`);
                 const newStatus = !roomStatus[room];
             
-            fetch('http://localhost:3001/api/room-status', {
+            fetch(`${API_URL}/api/room-status`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -950,7 +952,7 @@
             }
 
             // Fetch lab status from the backend
-            fetch('http://localhost:3001/api/lab-status')
+            fetch(`${API_URL}/api/lab-status`)
                 .then(response => response.json())
                 .then(data => {
                     labStatus = data;
@@ -980,7 +982,7 @@
             console.log(`Toggling status for lab ${lab}`);
                 const newStatus = !labStatus[lab];
             
-            fetch('http://localhost:3001/api/lab-status', {
+            fetch(`${API_URL}/api/lab-status`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
