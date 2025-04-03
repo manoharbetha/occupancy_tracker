@@ -4,15 +4,24 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
-const port = 3002;
+const port = process.env.PORT || 3002;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-// Connect to MongoDB
+// Root route for testing
+app.get('/', (req, res) => {
+    res.json({ message: 'Classroom Occupancy Tracker API is running' });
+});
+
+// Connect to local MongoDB
 mongoose.connect('mongodb://localhost:27017/occupancyTracker', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
 });
 
 // Room Schema
@@ -95,13 +104,14 @@ app.post('/api/lab-status', async (req, res) => {
     }
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
+
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${port} is already in use. Please try a different port or close the application using this port.`);
-    } else {
-        console.error('Error starting server:', err);
-    }
-    process.exit(1);
+    console.error('Server error:', err);
 });

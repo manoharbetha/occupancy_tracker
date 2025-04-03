@@ -1,60 +1,61 @@
-<<<<<<< HEAD
 # Classroom Occupancy Tracker
 
-A web application to track the occupancy status of classrooms and labs in real-time.
+A web application to track and manage classroom and lab occupancy in real-time.
 
 ## Features
 
-- Real-time room and lab status tracking
+- Real-time tracking of classroom and lab occupancy
 - Faculty login system
-- Status toggling for authorized users
-- Available/occupied room filtering
-- Responsive design
-- Modern UI with animations
+- View available/occupied rooms and labs
+- Toggle room/lab status (for faculty)
+- Responsive design with modern UI
 
-## Technologies Used
+## Live Demo
 
-- Frontend: HTML, CSS, JavaScript
-- Backend: Node.js, Express
-- Database: MongoDB
+- Frontend: https://manoharbetha.github.io/occupancy_tracker
+- Backend: https://occupancy-tracker-backend.onrender.com
 
-## Setup
+## Local Development
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/manohar_repo.git
+git clone https://github.com/manoharbetha/occupancy_tracker.git
+cd occupancy_tracker
 ```
 
-2. Install dependencies:
+2. Install backend dependencies:
 ```bash
-cd classroom-occupancy-tracker
+cd backend
 npm install
 ```
 
-3. Start the server:
-```bash
-node backend/server.js
+3. Set up environment variables:
+Create a `.env` file in the backend directory with:
+```
+PORT=3002
+MONGODB_URI=your_mongodb_connection_string
 ```
 
-4. Open the application:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:3001
+4. Start the backend server:
+```bash
+npm start
+```
 
-## Usage
+5. Open `frontend/index.html` in your browser
 
-- Faculty Login:
-  - Username: faculty
-  - Password: 1234
+## Deployment
 
-- Features:
-  - View room/lab status
-  - Toggle occupancy status
-  - Filter available/occupied rooms
-  - Check status without login
+### Frontend
+The frontend is deployed on GitHub Pages.
 
-## License
+### Backend
+The backend is deployed on Render.com with the following configuration:
+- Build Command: `npm install`
+- Start Command: `node backend/server.js`
+- Environment Variables:
+  - PORT: 3002
+  - MONGODB_URI: MongoDB Atlas connection string
 
-MIT License 
-=======
-# manohar_repo
->>>>>>> cb3f0afb5ecbd46eff1e250e099f2a0c56f01781
+## Default Login Credentials
+- Username: faculty
+- Password: 1234
