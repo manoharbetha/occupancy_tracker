@@ -2,86 +2,117 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
-const port = process.env.PORT || 3001;
-
-// Rate limiting (100 requests per 15 minutes)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-});
-app.use(limiter);
+const port = 3001;
 
 app.use(bodyParser.json());
+app.use(cors());
 
-// CORS Configuration
-app.use(cors({
-  origin: [
-    'https://occupancy-tracker-02.vercel.app', // Your Vercel URL
-    'http://localhost:3000' // Local development
-  ],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-}));
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/occupancytracker', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+    });
 
-// Schemas and Models
+// Room Schema
 const roomSchema = new mongoose.Schema({
-  room: { type: String, required: true, unique: true },
-  status: { type: Boolean, required: true }
+    room: String,
+    status: Boolean,
 });
+
 const Room = mongoose.model('Room', roomSchema);
 
+// Lab Schema
 const labSchema = new mongoose.Schema({
-  lab: { type: String, required: true, unique: true },
-  status: { type: Boolean, required: true }
+    lab: String,
+    status: Boolean,
 });
+
 const Lab = mongoose.model('Lab', labSchema);
 
-// API Endpoints
+// Get room status
 app.get('/api/room-status', async (req, res) => {
-  try {
-    const rooms = await Room.find();
-    const statusMap = rooms.reduce((acc, room) => {
-      acc[room.room] = room.status;
-      return acc;
-    }, {});
-    res.json(statusMap);
-  } catch (error) {
-    console.error('Error fetching room status:', error);
-    res.status(500).json({ error: 'Failed to fetch room status' });
-  }
+    try {
+        const rooms = await Room.find();
+        const roomStatus = {};
+        rooms.forEach(room => {
+            roomStatus[room.room] = room.status;
+        });
+        console.log('Responding with room statuses:', roomStatus);
+        res.json(roomStatus);
+    } catch (error) {
+        console.error('Error fetching room status:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
+// Update room status
 app.post('/api/room-status', async (req, res) => {
-  try {
     const { room, status } = req.body;
-    const updatedRoom = await Room.findOneAndUpdate(
-      { room },
-      { status },
-      { upsert: true, new: true, runValidators: true }
-    );
-    res.json({ message: 'Room status updated', data: updatedRoom });
-  } catch (error) {
-    console.error('Error updating room status:', error);
-    res.status(500).json({ error: 'Failed to update room status' });
-  }
+    try {
+        console.log(`Updating room ${room} status to ${status}`);
+        const result = await Room.findOneAndUpdate(
+            { room }, 
+            { status }, 
+            { upsert: true, new: true }
+        );
+        console.log('Update result:', result);
+        res.json({ message: 'Room status updated successfully!', data: result });
+    } catch (error) {
+        console.error('Error updating room status:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// Similar updates for lab endpoints...
+// Get lab status
+app.get('/api/lab-status', async (req, res) => {
+    try {
+        const labs = await Lab.find();
+        const labStatus = {};
+        labs.forEach(lab => {
+            labStatus[lab.lab] = lab.status;
+        });
+        console.log('Responding with lab statuses:', labStatus);
+        res.json(labStatus);
+    } catch (error) {
+        console.error('Error fetching lab status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update lab status
+app.post('/api/lab-status', async (req, res) => {
+    const { lab, status } = req.body;
+    try {
+        console.log(`Updating lab ${lab} status to ${status}`);
+        const result = await Lab.findOneAndUpdate(
+            { lab }, 
+            { status }, 
+            { upsert: true, new: true }
+        );
+        console.log('Update result:', result);
+        res.json({ message: 'Lab status updated successfully!', data: result });
+    } catch (error) {
+        console.error('Error updating lab status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+    console.log(`Server running on http://localhost:${port}`);
 }).on('error', (err) => {
-  console.error('Server error:', err.message);
-  process.exit(1);
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Please try a different port or close the application using this port.`);
+    } else {
+        console.error('Error starting server:', err);
+    }
+    process.exit(1);
 });
+change in this and give
