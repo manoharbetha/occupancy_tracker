@@ -7,7 +7,14 @@ const app = express();
 const port = 3001;
 
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://occupancy-tracker-02.vercel.app', // Your Vercel URL
+    'http://localhost:3000' // Local development
+  ],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/occupancytracker', {
