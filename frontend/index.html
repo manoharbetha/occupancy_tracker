@@ -35,7 +35,6 @@
             overflow: hidden;
         }
 
-        /* Debug styles */
         body::before {
             content: '';
             position: fixed;
@@ -720,71 +719,73 @@
         </div>
 
         <div class="login-wrapper">
-    <div class="login-container" id="faculty-login">
-        <h2>Faculty Login</h2>
-        <div class="input-container">
-        <input type="text" id="faculty-username" placeholder="Username">
-            <label class="label">Username</label>
-            <span class="topline"></span>
-            <span class="underline"></span>
-        </div>
-        <div class="input-container">
-        <input type="password" id="faculty-password" placeholder="Password">
-            <label class="label">Password</label>
-            <span class="topline"></span>
-            <span class="underline"></span>
-        </div>
-        <button class="login-button" onclick="login('faculty')">Login</button>
-        <a href="#" class="forgot-password" onclick="forgotPassword()">Forgot Password?</a>
-        <p class="error-message" id="faculty-error"></p>
-    </div>
+            <div class="login-container" id="faculty-login">
+                <h2>Faculty Login</h2>
+                <div class="input-container">
+                    <input type="text" id="faculty-username" placeholder="Username">
+                    <label class="label">Username</label>
+                    <span class="topline"></span>
+                    <span class="underline"></span>
+                </div>
+                <div class="input-container">
+                    <input type="password" id="faculty-password" placeholder="Password">
+                    <label class="label">Password</label>
+                    <span class="topline"></span>
+                    <span class="underline"></span>
+                </div>
+                <button class="login-button" onclick="login('faculty')">Login</button>
+                <a href="#" class="forgot-password" onclick="forgotPassword()">Forgot Password?</a>
+                <p class="error-message" id="faculty-error"></p>
+            </div>
             <button class="check-status-button" onclick="checkStatus()">Check Status Without Login</button>
         </div>
 
-    <div id="tracker-container">
-        <header>
-            <h1>Classroom Occupancy Tracker</h1>
+        <div id="tracker-container">
+            <header>
+                <h1>Classroom Occupancy Tracker</h1>
                 <div class="header-buttons">
                     <button id="logout-btn" class="header-btn" onclick="logout()" style="display: none;">Logout</button>
                     <button id="exit-btn" class="header-btn" onclick="exit()" style="display: none;">Exit</button>
                 </div>
-        </header>
-        
-        <div class="button-container" id="faculty-options">
-            <button onclick="showAvailable()">Show Available</button>
-            <button onclick="showOccupied()">Show Occupied</button>
-            <button onclick="showAll()">Show All</button>
-            <button id="faculty-logout-btn" class="button-container button" onclick="logout()" style="display: none; background: var(--redFire);">Logout</button>
+            </header>
+            
+            <div class="button-container" id="faculty-options">
+                <button onclick="showAvailable()">Show Available</button>
+                <button onclick="showOccupied()">Show Occupied</button>
+                <button onclick="showAll()">Show All</button>
+                <button id="faculty-logout-btn" class="button-container button" onclick="logout()" style="display: none; background: var(--redFire);">Logout</button>
+            </div>
+            
+            <section id="room-status">
+                <h2>Real-Time Room Occupancy</h2>
+                <div id="rooms" class="room-container"></div>
+            </section>
+            
+            <section id="labs">
+                <h2>Lab Availability</h2>
+                <div id="labs-container"></div>
+            </section>
+            
+            <h3 id="ai-suggestion"></h3>
         </div>
-        
-        <section id="room-status">
-            <h2>Real-Time Room Occupancy</h2>
-            <div id="rooms" class="room-container"></div>
-        </section>
-        
-        <section id="labs">
-            <h2>Lab Availability</h2>
-            <div id="labs-container"></div>
-        </section>
-        
-        <h3 id="ai-suggestion"></h3>
-        </div>
-    </div>
     
-    <div class="forgot-password-modal" id="forgot-password-modal">
-        <div class="forgot-password-container">
-            <span class="close-modal" onclick="closeForgotPasswordModal()">&times;</span>
-            <h3>Reset Password</h3>
-            <p>Enter your username to receive password reset instructions.</p>
-            <input type="text" id="reset-username" placeholder="Username">
-            <button class="reset-password-btn" onclick="resetPassword()">Send Reset Link</button>
-            <p class="success-message" id="reset-success">Reset instructions have been sent to your email.</p>
-            <p class="error-message" id="reset-error">Username not found. Please try again.</p>
+        <div class="forgot-password-modal" id="forgot-password-modal">
+            <div class="forgot-password-container">
+                <span class="close-modal" onclick="closeForgotPasswordModal()">×</span>
+                <h3>Reset Password</h3>
+                <p>Enter your username to receive password reset instructions.</p>
+                <input type="text" id="reset-username" placeholder="Username">
+                <button class="reset-password-btn" onclick="resetPassword()">Send Reset Link</button>
+                <p class="success-message" id="reset-success">Reset instructions have been sent to your email.</p>
+                <p class="error-message" id="reset-error">Username not found. Please try again.</p>
+            </div>
         </div>
+    
+        <div id="particles" class="particles"></div>
     </div>
     
     <script>
-        const API_URL = 'https://occupancy-tracker-backend.onrender.com';  // Updated to use Render URL
+        const API_URL = 'http://localhost:3001'; // Updated for local testing
         
         const floors = {
             "Floor 1": ["A11", "A12", "A13", "A14"],
@@ -835,20 +836,16 @@
 
             if (userType === "faculty" && username === "faculty" && password === "1234") {
                 console.log("Credentials valid");
-
                 currentUserType = userType;
-
                 facultyLogin.style.display = "none";
                 document.querySelector('.check-status-button').style.display = "none";
                 trackerContainer.style.display = "block";
                 document.getElementById("faculty-options").style.display = "block";
                 document.getElementById("faculty-logout-btn").style.display = "inline-block";
                 document.getElementById("initial-text").style.display = "none";
-                
-                updateRoomStatus();
+                console.log("Calling updateRoomStatus after login");
+                updateRoomStatus(); // Ensure this is called after login
                 updateLabStatus();
-
-                console.log("Login successful");
             } else {
                 console.log("Invalid credentials");
                 errorMessage.innerText = "Invalid credentials!";
@@ -878,9 +875,9 @@
             document.getElementById("exit-btn").style.display = "inline-block";
             document.getElementById("logout-btn").style.display = "none";
             document.getElementById("initial-text").style.display = "none";
-
-                updateRoomStatus();
-                updateLabStatus();
+            console.log("Calling updateRoomStatus for checkStatus");
+            updateRoomStatus();
+            updateLabStatus();
         }
 
         function updateRoomStatus() {
@@ -889,58 +886,75 @@
                 console.error("Rooms container not found");
                 return;
             }
+            console.log("Attempting to fetch room status from:", `${API_URL}/api/room-status`);
 
-            // Fetch room status from the backend
-            fetch(`${API_URL}/api/room-status`)
-                .then(response => response.json())
+            fetch(`${API_URL}/api/room-status`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    roomStatus = data;
+                    console.log('Fetched room data:', data); // Debug log
+                    if (Object.keys(data).length === 0) {
+                        console.warn('No room data received from server');
+                    }
+                    roomStatus = data || {};
                     roomContainer.innerHTML = "";
-            Object.keys(floors).forEach(floor => {
-                floors[floor].forEach(room => {
+                    Object.keys(floors).forEach(floor => {
+                        floors[floor].forEach(room => {
                             const roomDiv = document.createElement("div");
-                    roomDiv.className = `room ${roomStatus[room] ? 'occupied' : 'available'}`;
-                    roomDiv.innerHTML = `
-                        <strong>${room}</strong>: 
-                                <span>${roomStatus[room] ? "Occupied" : "Available"}</span>
-                        ${currentUserType === 'faculty' ? `<button onclick="toggleRoomStatus('${room}')">Toggle</button>` : ''}
-                    `;
-                    roomContainer.appendChild(roomDiv);
-                });
-            });
-            $(roomContainer).children().hide().each(function(index) {
-                $(this).delay(index * 50).fadeIn(200);
-            });
-            suggestAlternativeRooms();
+                            roomDiv.className = `room ${roomStatus[room] ? 'occupied' : 'available'}`;
+                            roomDiv.innerHTML = `
+                                <strong>${room}</strong>: 
+                                <span>${roomStatus[room] !== undefined ? (roomStatus[room] ? "Occupied" : "Available") : "Unknown"}</span>
+                                ${currentUserType === 'faculty' ? `<button onclick="toggleRoomStatus('${room}')">Toggle</button>` : ''}
+                            `;
+                            roomContainer.appendChild(roomDiv);
+                        });
+                    });
+                    $(roomContainer).children().hide().each(function(index) {
+                        $(this).delay(index * 50).fadeIn(200);
+                    });
+                    suggestAlternativeRooms();
                 })
                 .catch(error => {
                     console.error('Error fetching room status:', error);
-                    alert('Error fetching room status. Please try again.');
+                    alert(`Error fetching room status: ${error.message}. Check console for details.`);
                 });
         }
 
         function toggleRoomStatus(room) {
             console.log(`Toggling status for room ${room}`);
-                const newStatus = !roomStatus[room];
+            const newStatus = !roomStatus[room];
             
             fetch(`${API_URL}/api/room-status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     room: room,
                     status: newStatus
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 console.log('Room status updated:', data);
                 updateRoomStatus();
             })
             .catch(error => {
                 console.error('Error updating room status:', error);
-                alert('Error updating room status. Please try again.');
+                alert(`Error updating room status: ${error.message}. Check console for details.`);
             });
         }
 
@@ -950,56 +964,73 @@
                 console.error("Labs container not found");
                 return;
             }
+            console.log("Attempting to fetch lab status from:", `${API_URL}/api/lab-status`);
 
-            // Fetch lab status from the backend
-            fetch(`${API_URL}/api/lab-status`)
-                .then(response => response.json())
+            fetch(`${API_URL}/api/lab-status`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    labStatus = data;
+                    console.log('Fetched lab data:', data); // Debug log
+                    if (Object.keys(data).length === 0) {
+                        console.warn('No lab data received from server');
+                    }
+                    labStatus = data || {};
                     labContainer.innerHTML = "";
-            labs.forEach(lab => {
+                    labs.forEach(lab => {
                         const labDiv = document.createElement("div");
-                labDiv.className = `lab ${labStatus[lab] ? 'occupied' : 'available'}`;
-                labDiv.innerHTML = `
-                    <strong>${lab}</strong>: 
-                            <span>${labStatus[lab] ? "Occupied" : "Available"}</span>
-                    ${currentUserType === 'faculty' ? `<button onclick="toggleLabStatus('${lab}')">Toggle</button>` : ''}
-                `;
-                labContainer.appendChild(labDiv);
-            });
-            $(labContainer).children().hide().each(function(index) {
-                $(this).delay(index * 50).fadeIn(200);
+                        labDiv.className = `lab ${labStatus[lab] ? 'occupied' : 'available'}`;
+                        labDiv.innerHTML = `
+                            <strong>${lab}</strong>: 
+                            <span>${labStatus[lab] !== undefined ? (labStatus[lab] ? "Occupied" : "Available") : "Unknown"}</span>
+                            ${currentUserType === 'faculty' ? `<button onclick="toggleLabStatus('${lab}')">Toggle</button>` : ''}
+                        `;
+                        labContainer.appendChild(labDiv);
+                    });
+                    $(labContainer).children().hide().each(function(index) {
+                        $(this).delay(index * 50).fadeIn(200);
                     });
                     suggestAlternativeLabs();
                 })
                 .catch(error => {
                     console.error('Error fetching lab status:', error);
-                    alert('Error fetching lab status. Please try again.');
+                    alert(`Error fetching lab status: ${error.message}. Check console for details.`);
                 });
         }
         
         function toggleLabStatus(lab) {
             console.log(`Toggling status for lab ${lab}`);
-                const newStatus = !labStatus[lab];
+            const newStatus = !labStatus[lab];
             
             fetch(`${API_URL}/api/lab-status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     lab: lab,
                     status: newStatus
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 console.log('Lab status updated:', data);
                 updateLabStatus();
             })
             .catch(error => {
                 console.error('Error updating lab status:', error);
-                alert('Error updating lab status. Please try again.');
+                alert(`Error updating lab status: ${error.message}. Check console for details.`);
             });
         }
 
@@ -1110,10 +1141,7 @@
             const aiSuggestion = document.getElementById("ai-suggestion");
             if (!aiSuggestion) return;
 
-            // Get all rooms from the floors object
             const allRooms = Object.values(floors).flat();
-            
-            // Filter rooms that are not occupied (status is false)
             const availableRooms = allRooms.filter(room => !roomStatus[room]);
             
             if (availableRooms.length > 0) {
@@ -1129,7 +1157,6 @@
             const aiSuggestion = document.getElementById("ai-suggestion");
             if (!aiSuggestion) return;
 
-            // Filter labs that are not occupied (status is false)
             const availableLabs = labs.filter(lab => !labStatus[lab]);
             
             if (availableLabs.length > 0) {
@@ -1169,7 +1196,6 @@
             }
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('forgot-password-modal');
             if (event.target === modal) {
