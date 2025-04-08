@@ -10,7 +10,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/occupancyTracker')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/occupancytracker', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
     .then(() => {
         console.log('Connected to MongoDB');
     })
