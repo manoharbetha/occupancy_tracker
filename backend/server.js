@@ -4,25 +4,19 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = 3001;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-// Root route for testing
-app.get('/', (req, res) => {
-    res.json({ message: 'Classroom Occupancy Tracker API is running' });
-});
-
-// Connect to local MongoDB
-mongoose.connect('mongodb://localhost:27017/occupancyTracker', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('MongoDB connection error:', err);
-});
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/occupancyTracker')
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+    });
 
 // Room Schema
 const roomSchema = new mongoose.Schema({
@@ -48,8 +42,10 @@ app.get('/api/room-status', async (req, res) => {
         rooms.forEach(room => {
             roomStatus[room.room] = room.status;
         });
+        console.log('Responding with room statuses:', roomStatus);
         res.json(roomStatus);
     } catch (error) {
+        console.error('Error fetching room status:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -80,8 +76,10 @@ app.get('/api/lab-status', async (req, res) => {
         labs.forEach(lab => {
             labStatus[lab.lab] = lab.status;
         });
+        console.log('Responding with lab statuses:', labStatus);
         res.json(labStatus);
     } catch (error) {
+        console.error('Error fetching lab status:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -104,14 +102,13 @@ app.post('/api/lab-status', async (req, res) => {
     }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
-});
-
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 }).on('error', (err) => {
-    console.error('Server error:', err);
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Please try a different port or close the application using this port.`);
+    } else {
+        console.error('Error starting server:', err);
+    }
+    process.exit(1);
 });
